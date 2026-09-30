@@ -1,0 +1,19 @@
+# Deploy from this directory on Render as a Background Worker.
+# Set DISCORD_BOT_TOKEN and PROJECTS_JSON in the dashboard. Do not commit them.
+services:
+  - type: worker
+    name: status-monitor
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: PROJECTS_JSON
+        sync: false
+      - key: DATA_DIR
+        value: /data
+      - key: CHECK_INTERVAL_SECONDS
+        value: "60"
+      - key: TIME_ZONE
+        value: Asia/Manila
