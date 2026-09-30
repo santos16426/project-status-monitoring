@@ -44,6 +44,14 @@ export function overallStatus(project: ProjectTarget, state: ProjectState): Over
   return "operational";
 }
 
+function updateLabel(intervalSeconds: number): string {
+  if (intervalSeconds === 60) return "Updated every minute";
+  if (intervalSeconds % 60 === 0) {
+    const minutes = intervalSeconds / 60;
+    return `Updated every ${minutes} minute${minutes === 1 ? "" : "s"}`;
+  }
+  return `Updated every ${intervalSeconds} seconds`;
+}
 function overallChip(status: OverallStatus): string {
   if (status === "operational") return "`🟢 Online`";
   if (status === "degraded") return "`🟡 Degraded`";
@@ -159,7 +167,7 @@ export function buildDashboardEmbed(
     color: overallColor(status),
     fields,
     footer: {
-      text: `Updated every ${intervalSeconds === 60 ? "minute" : `${intervalSeconds} seconds`} · ${dashboardMarker(project.id)}`,
+      text: `${updateLabel(intervalSeconds)} · ${dashboardMarker(project.id)}`,
     },
     timestamp: now.toISOString(),
   };

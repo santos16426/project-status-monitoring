@@ -32,5 +32,6 @@ jobs:
         env:
           RUN_ONCE: "1"
           DATA_DIR: data
+          CHECK_INTERVAL_SECONDS: "1800"
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           PROJECTS_JSON: ${{ secrets.PROJECTS_JSON }}

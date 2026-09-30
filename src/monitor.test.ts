@@ -34,7 +34,9 @@ describe("dashboard", () => {
     const embed = buildDashboardEmbed(project, state, "Asia/Manila", 60, new Date("2026-10-01T06:00:00.000Z"));
     const text = JSON.stringify(embed);
     assert.equal(text.includes("DISCORD_BOT_TOKEN"), false);
-    assert.match(embed.footer.text, /status-monitor:moolah/);
+    assert.match(embed.footer.text, /Updated every minute/);
+    const halfHour = buildDashboardEmbed(project, state, "Asia/Manila", 1800, new Date("2026-10-01T06:00:00.000Z"));
+    assert.match(halfHour.footer.text, /Updated every 30 minutes/);
     assert.equal(embed.title, "Moolah");
     assert.equal(embed.url, "https://moolah.example");
     const frontend = embed.fields.find((field) => field.name === "FRONTEND");
