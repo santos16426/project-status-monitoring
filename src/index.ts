@@ -53,9 +53,28 @@ async function main(): Promise<void> {
       logger.error("cycle_failed", {
         message: error instanceof Error ? error.message : "unknown",
       });
+      if (process.env.RUN_ONCE === "1") throw error;
     } finally {
       running = false;
     }
+  }
+
+  logger.info("monitoring_started", {
+    port: config.port,
+    projects: config.projects.length,
+    intervalSeconds: config.checkIntervalSeconds,
+    once: process.env.RUN_ONCE === "1",
+  });
+
+  if (process.env.RUN_ONCE === "1") {
+    await tick();
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => {
+        if (error) reject(error);
+        else resolve();
+      });
+    });
+    return;
   }
 
   const timer = setInterval(() => {
@@ -69,12 +88,6 @@ async function main(): Promise<void> {
   }
   process.once("SIGTERM", shutdown);
   process.once("SIGINT", shutdown);
-
-  logger.info("monitoring_started", {
-    port: config.port,
-    projects: config.projects.length,
-    intervalSeconds: config.checkIntervalSeconds,
-  });
 }
 
 main().catch((error: unknown) => {

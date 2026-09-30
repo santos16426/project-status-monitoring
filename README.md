@@ -30,6 +30,17 @@ npm run dev
 
 `GET /health` on `PORT` (8080 locally) returns `{ "status": "ok", "service": "status-monitor" }`. Any other path returns 404. That route is for an external watchdog. It does not check Discord or the projects.
 
+## GitHub Actions
+
+The private repo runs one check every 30 minutes on GitHub-hosted runners, then exits. Stop the local `npm run dev` after this is running, or both will edit the same cards.
+
+Repository secrets, not files in git:
+
+- `DISCORD_BOT_TOKEN`
+- `PROJECTS_JSON` — the contents of `projects.json`
+
+A down alert still waits for 3 failed checks, which is about 90 minutes on this schedule. GitHub can start a run a few minutes late. Uptime counts and the dashboard message id are kept in the Actions cache between runs. The footer marker still lets a later run find the existing card if that cache is dropped.
+
 ## Render
 
 Use a **Background Worker**, not a free Web Service. A free web service sleeps when nobody visits it, so the checks would stop. A worker stays running.
