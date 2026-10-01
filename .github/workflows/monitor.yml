@@ -2,15 +2,17 @@ name: Monitor
 
 on:
   schedule:
-    # Every 30 minutes. GitHub rounds each private-repo run up to one minute,
-    # so this stays inside the free 2,000 minutes a month. The platform minimum
-    # is 5 minutes, and a run can start late.
-    - cron: "*/30 * * * *"
+    - cron: "0 */6 * * *"
   workflow_dispatch:
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
 
@@ -28,10 +30,12 @@ jobs:
           key: monitor-state-${{ github.run_id }}
           restore-keys: monitor-state-
 
-      - run: node dist/index.js
+      - run: timeout 350m node dist/index.js || [ $? -eq 124 ]
         env:
-          RUN_ONCE: "1"
           DATA_DIR: data
-          CHECK_INTERVAL_SECONDS: "1800"
+          CHECK_INTERVAL_SECONDS: "60"
+          REMINDER_MINUTES: "30"
+          TIME_ZONE: Asia/Manila
+          PORT: "8080"
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           PROJECTS_JSON: ${{ secrets.PROJECTS_JSON }}
