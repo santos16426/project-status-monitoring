@@ -39,6 +39,38 @@ describe("checkUrl", () => {
     assert.equal(result.statusCode, 200);
   });
 
+  it("requires the listed JSON fields and retries a mismatch", async () => {
+    const seen: string[] = [];
+    const result = await checkUrl("https://api.example/health", {
+      timeoutMs: 1000,
+      retryDelayMs: 5,
+      expect: { status: "ok", db: "up" },
+      sleep: async () => undefined,
+      fetchImpl: async () => {
+        seen.push("call");
+        const body = seen.length === 1
+          ? { status: "ok", db: "down" }
+          : { status: "ok", db: "up", uptime: 12 };
+        return new Response(JSON.stringify(body), { status: 200 });
+      },
+    });
+    assert.equal(seen.length, 2);
+    assert.equal(result.online, true);
+    assert.equal(result.error, null);
+  });
+
+  it("stays offline when the database field is down", async () => {
+    const result = await checkUrl("https://api.example/health", {
+      timeoutMs: 1000,
+      retryDelayMs: 0,
+      expect: { db: "up" },
+      fetchImpl: async () => new Response(JSON.stringify({ status: "ok", db: "down" }), { status: 200 }),
+    });
+    assert.equal(result.online, false);
+    assert.equal(result.statusCode, 200);
+    assert.equal(result.error, "db is down");
+  });
+
   it("reports unreachable without the response body", async () => {
     const result = await checkUrl("https://api.example/health", {
       timeoutMs: 1000,

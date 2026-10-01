@@ -46,6 +46,7 @@ describe("loadConfig", () => {
     const database = config.projects[0]?.checks.find((check) => check.id === "database");
     const frontend = config.projects[0]?.checks.find((check) => check.id === "frontend");
     assert.equal(database?.importance, "dependency");
+    assert.equal(database?.expect, undefined);
     assert.equal(frontend?.importance, "critical");
     assert.equal(config.projects[0]?.statusChannelId, "323456789012345678");
     assert.equal(config.projects[1]?.statusChannelId, "123456789012345678");
@@ -84,5 +85,24 @@ describe("loadConfig", () => {
     if (!planera) throw new Error("missing planera");
     planera.id = "moolah";
     await assert.rejects(() => loadConfig(withProjects(duplicated)), /Duplicate project id/);
+
+    const health = structuredClone(projects);
+    const healthProject = health[0];
+    if (!healthProject) throw new Error("missing project");
+    healthProject.checks[1] = {
+      id: "backend",
+      name: "Backend",
+      url: "https://api.example/health",
+      expect: { status: "ok", db: "up" },
+    };
+    const loaded = await loadConfig(withProjects(health));
+    assert.deepEqual(loaded.projects[0]?.checks[1]?.expect, { status: "ok", db: "up" });
+    healthProject.checks[1] = {
+      id: "backend",
+      name: "Backend",
+      url: "https://api.example/health",
+      expect: { Status: "ok" },
+    };
+    await assert.rejects(() => loadConfig(withProjects(health)), /lowercase/);
   });
 });

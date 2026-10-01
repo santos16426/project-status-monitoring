@@ -96,7 +96,28 @@ function parseCheck(value: unknown, label: string, production: boolean): CheckTa
     name: name.trim(),
     url: publicUrl(url, `${label}.url`, production),
     importance,
+    expect: parseExpect(value.expect, label),
   };
+}
+
+function parseExpect(value: unknown, label: string): Record<string, string> | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) throw new Error(`${label}.expect must be an object`);
+  const entries = Object.entries(value);
+  if (entries.length === 0 || entries.length > 8) {
+    throw new Error(`${label}.expect must have 1 to 8 fields`);
+  }
+  const expect: Record<string, string> = {};
+  for (const [key, field] of entries) {
+    if (!/^[a-z][a-z0-9_]{0,31}$/.test(key)) {
+      throw new Error(`${label}.expect keys must be lowercase`);
+    }
+    if (typeof field !== "string" || field.length === 0 || field.length > 40) {
+      throw new Error(`${label}.expect.${key} must be a short string`);
+    }
+    expect[key] = field;
+  }
+  return expect;
 }
 
 export function parseProjects(raw: string, production: boolean, fallbackChannelId: string | null = null): ProjectTarget[] {

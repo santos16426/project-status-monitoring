@@ -12,7 +12,7 @@ Put the list in `projects.json` (`PROJECTS_FILE`, default `./projects.json`) or 
 cp projects.example.json projects.json
 ```
 
-Each project has an `id`, `name`, `discord_status_channel_id`, optional `environment`, and one or more checks (`id`, `name`, `url`, optional `importance`). `importance` is `critical` unless you set `dependency`. Duplicate project or check ids are rejected. Production URLs must be https, except localhost.
+Each project has an `id`, `name`, `discord_status_channel_id`, optional `environment`, and one or more checks (`id`, `name`, `url`, optional `importance`, optional `expect`). `importance` is `critical` unless you set `dependency`. `expect` is a small JSON object; a 2xx response is still a failure when any listed field does not match. Duplicate project or check ids are rejected. Production URLs must be https, except localhost.
 
 The status card for a project is posted in that project's channel. `DISCORD_STATUS_CHANNEL_ID` is only a fallback when a project leaves the field out. The embed footer starts with `status-monitor:<project id>`, which is how the process finds that message again after a restart. Alerts go to `DISCORD_ALERT_CHANNEL_ID` when that is set, and otherwise to the same channel as the project's status card.
 

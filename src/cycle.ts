@@ -23,6 +23,7 @@ export async function runCycle(
       const result = await check(target.url, {
         timeoutMs: config.requestTimeoutMs,
         retryDelayMs: config.retryDelayMs,
+        expect: target.expect,
       });
       const previous = projectState.checks[target.id];
       if (!previous) continue;
