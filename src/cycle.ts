@@ -24,6 +24,8 @@ export async function runCycle(
         timeoutMs: config.requestTimeoutMs,
         retryDelayMs: config.retryDelayMs,
         expect: target.expect,
+        apiKey: target.apiKey,
+        database: target.database,
       });
       const previous = projectState.checks[target.id];
       if (!previous) continue;

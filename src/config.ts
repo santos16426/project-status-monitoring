@@ -68,6 +68,9 @@ function publicUrl(value: string, name: string, production: boolean): string {
   ) {
     throw new Error(`${name} must use https in production`);
   }
+  if (parsed.searchParams.has("apikey") || parsed.searchParams.has("api_key")) {
+    throw new Error(`${name} must not contain an api key`);
+  }
   return parsed.toString().replace(/\/$/, "");
 }
 
@@ -97,7 +100,23 @@ function parseCheck(value: unknown, label: string, production: boolean): CheckTa
     url: publicUrl(url, `${label}.url`, production),
     importance,
     expect: parseExpect(value.expect, label),
+    apiKey: parseApiKey(value.apiKey, label),
+    database: parseDatabase(value.database, label),
   };
+}
+
+function parseApiKey(value: unknown, label: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string" || value.length < 20 || value.length > 500 || /\s/.test(value)) {
+    throw new Error(`${label}.apiKey must be a single token`);
+  }
+  return value;
+}
+
+function parseDatabase(value: unknown, label: string): boolean | undefined {
+  if (value === undefined) return undefined;
+  if (value !== true) throw new Error(`${label}.database must be true when set`);
+  return true;
 }
 
 function parseExpect(value: unknown, label: string): Record<string, string> | undefined {

@@ -8,6 +8,8 @@ interface FixtureCheck {
   url: string;
   importance?: string;
   expect?: Record<string, string>;
+  apiKey?: string;
+  database?: boolean;
 }
 
 interface FixtureProject {
@@ -120,5 +122,12 @@ describe("loadConfig", () => {
       expect: { Status: "ok" },
     };
     await assert.rejects(() => loadConfig(withProjects(health)), /lowercase/);
+    healthProject.checks[1] = {
+      id: "backend",
+      name: "Backend",
+      url: "https://api.example/health?apikey=token",
+      apiKey: "anon-key-0123456789abcdef",
+    };
+    await assert.rejects(() => loadConfig(withProjects(health)), /api key/);
   });
 });

@@ -7,6 +7,8 @@ export interface CheckTarget {
   url: string;
   importance: Importance;
   expect?: Record<string, string> | undefined;
+  apiKey?: string | undefined;
+  database?: boolean | undefined;
 }
 
 export interface ProjectTarget {
