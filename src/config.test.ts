@@ -2,7 +2,23 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { loadConfig } from "./config.js";
 
-const projects = [
+interface FixtureCheck {
+  id: string;
+  name: string;
+  url: string;
+  importance?: string;
+  expect?: Record<string, string>;
+}
+
+interface FixtureProject {
+  id: string;
+  name: string;
+  environment?: string;
+  discord_status_channel_id?: string;
+  checks: FixtureCheck[];
+}
+
+const projects: FixtureProject[] = [
   {
     id: "moolah",
     name: "Moolah",

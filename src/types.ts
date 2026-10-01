@@ -6,7 +6,7 @@ export interface CheckTarget {
   name: string;
   url: string;
   importance: Importance;
-  expect?: Record<string, string>;
+  expect?: Record<string, string> | undefined;
 }
 
 export interface ProjectTarget {

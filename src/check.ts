@@ -3,7 +3,7 @@ import type { CheckResult } from "./types.js";
 export interface CheckOptions {
   timeoutMs: number;
   retryDelayMs: number;
-  expect?: Record<string, string>;
+  expect?: Record<string, string> | undefined;
   fetchImpl?: typeof fetch;
   sleep?: (ms: number) => Promise<void>;
 }
