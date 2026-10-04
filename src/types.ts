@@ -35,6 +35,7 @@ export interface ServiceState {
   incidentStartedAt: string | null;
   downAlertSent: boolean;
   lastReminderAt: string | null;
+  alertMessageId: string | null;
   pendingAlert: "down" | "recovery" | "reminder" | null;
   pendingStartedAt: string | null;
   pendingResolvedAt: string | null;
@@ -68,6 +69,7 @@ export function emptyServiceState(): ServiceState {
     incidentStartedAt: null,
     downAlertSent: false,
     lastReminderAt: null,
+    alertMessageId: null,
     pendingAlert: null,
     pendingStartedAt: null,
     pendingResolvedAt: null,

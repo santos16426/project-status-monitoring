@@ -50,10 +50,14 @@ export async function runCycle(
         ? { type: current.pendingAlert, startedAt, resolvedAt }
         : { type: current.pendingAlert, startedAt };
       try {
-        await discord.publishAlert(
+        const messageId = await discord.publishAlert(
           config.alertChannelId ?? project.statusChannelId,
+          current.alertMessageId,
           buildAlertContent(project.name, target.name, alert, current, config.timeZone)
         );
+        // "down" and "reminder" edit the same message going forward.
+        // "recovery" closes the incident out, so the NEXT outage starts a fresh message.
+        current.alertMessageId = current.pendingAlert === "recovery" ? null : messageId;
         current.pendingAlert = null;
         current.pendingStartedAt = null;
         current.pendingResolvedAt = null;

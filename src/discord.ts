@@ -15,7 +15,7 @@ interface DiscordMessage {
 
 export interface DiscordPublisher {
   publishDashboard(channelId: string, messageId: string | null, embed: DiscordEmbed): Promise<string>;
-  publishAlert(channelId: string, content: string): Promise<void>;
+  publishAlert(channelId: string, messageId: string | null, content: string): Promise<string>;
 }
 
 export class DiscordClient implements DiscordPublisher {
@@ -71,10 +71,21 @@ export class DiscordClient implements DiscordPublisher {
     return created.id;
   }
 
-  async publishAlert(channelId: string, content: string): Promise<void> {
-    await this.request(`/channels/${channelId}/messages`, {
-      method: "POST",
-      body: JSON.stringify({ content }),
-    });
+  async publishAlert(channelId: string, messageId: string | null, content: string): Promise<string> {
+    const body = JSON.stringify({ content });
+    if (messageId) {
+      try {
+        const edited = await this.request<DiscordMessage>(`/channels/${channelId}/messages/${messageId}`, {
+          method: "PATCH",
+          body,
+        });
+        return edited.id;
+      } catch (error) {
+        if (!(error instanceof DiscordRequestError) || error.status !== 404) throw error;
+        // message was deleted out from under us — fall through and post a fresh one
+      }
+    }
+    const created = await this.request<DiscordMessage>(`/channels/${channelId}/messages`, { method: "POST", body });
+    return created.id;
   }
 }
